@@ -3,7 +3,7 @@ import { ethers, providers } from "ethers";
 import {create as ipfsHttpClient} from 'ipfs-http-client';
 import { useRouter } from "next/dist/client/router";
 import Web3Modal from 'web3modal';
-import { nftaddress, nftmarketaddress, ipfsMoralisUploadUrl } from '../config';
+import { nftaddress, nftmarketaddress } from '../config';
 import Market from '../artifacts/contracts/NFTMarket.sol/NFTMarket.json'
 import NFT from '../artifacts/contracts/NFT.sol/NFT.json'
 import axios from "axios";
@@ -47,7 +47,7 @@ export default function CreateItem () {
 
         const config = {
             method: 'post',
-            url: ipfsMoralisUploadUrl,
+            url: 'https://deep-index.moralis.io/api/v2/ipfs/uploadFolder',
             headers: { 
               'Content-Type': 'application/json'
             },
@@ -84,7 +84,7 @@ export default function CreateItem () {
 
         const config = {
             method: 'post',
-            url: ipfsMoralisUploadUrl,
+            url: 'https://deep-index.moralis.io/api/v2/ipfs/uploadFolder',
             headers: { 
               'Content-Type': 'application/json'
             },
@@ -122,7 +122,7 @@ export default function CreateItem () {
         if(!name || !description || !price || !fileUrl) return 
         
         const data = JSON.stringify({
-            name, description, image: fileUrl
+            name, description, image: fileUrl, plays: 0
         })
 
         try {
@@ -136,15 +136,17 @@ export default function CreateItem () {
     }
 
     async function createSale(url) {
-        console.log('creat sale')
+        console.log('create sale')
         const web3Modal = new Web3Modal()
         const connection = await web3Modal.connect()
         const provider = new ethers.providers.Web3Provider(connection)
         const signer = provider.getSigner()
-
+        console.log(url)
         // Create Token
         let contract = new ethers.Contract(nftaddress, NFT.abi, signer)
+        console.log('create token')
         let transaction = await contract.createToken(url)
+        console.log('transaction')
         let tx = await transaction.wait()
 
         // Get Token Id from transaction

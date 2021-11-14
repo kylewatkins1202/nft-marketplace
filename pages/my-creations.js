@@ -20,6 +20,7 @@ export default function MyAssets() {
     const connection = await web3Modal.connect()
     const provider = new ethers.providers.Web3Provider(connection)
     const signer = provider.getSigner()
+    console.log(signer)
       
     const marketContract = new ethers.Contract(nftmarketaddress, Market.abi, signer)
     const tokenContract = new ethers.Contract(nftaddress, NFT.abi, provider)
@@ -27,6 +28,7 @@ export default function MyAssets() {
     
     const items = await Promise.all(data.map(async i => {
       const tokenUri = await tokenContract.tokenURI(i.tokenId)
+      console.log(tokenUri)
       const meta = await axios.get(tokenUri)
       let price = ethers.utils.formatUnits(i.price.toString(), 'ether')
       let item = {
@@ -35,8 +37,10 @@ export default function MyAssets() {
         seller: i.seller,
         owner: i.owner,
         image: meta.data.image,
-        sold: i.sold
+        sold: i.sold,
+        plays: meta.data.plays
       }
+      
       return item
     }))
     setNfts(items)
@@ -52,6 +56,7 @@ export default function MyAssets() {
               <div key={i} className="border shadow rounded-xl overflow-hidden">
                 <img src={nft.image} className="rounded" />
                 <div className="p-4 bg-black">
+                  <p className="text-2xl font-bold text-white">Plays {nft.plays} </p>
                   <p className="text-2xl font-bold text-white">Price - {nft.price} Eth</p>
                   {nft.sold&&<p>Sold</p>}
                 </div>

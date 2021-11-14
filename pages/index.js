@@ -18,14 +18,7 @@ export default function Home() {
   }, [])
 
   async function loadNFTs() {
-    let provider
-    
-    if(rpcprovider==false){
-      provider =  new ethers.providers.JsonRpcProvider()
-    }
-    else {
-      provider =  new ethers.providers.JsonRpcProvider(rpcprovider)
-    }
+    const provider =  new ethers.providers.JsonRpcProvider()
     
     const tokenContract = new ethers.Contract(nftaddress, NFT.abi, provider)
     const marketContract = new ethers.Contract(nftmarketaddress, Market.abi, provider)
@@ -59,13 +52,15 @@ export default function Home() {
     const web3Modal = new Web3Modal()
     const connection = await web3Modal.connect()
     const provider = new ethers.providers.Web3Provider(connection)
-
+    
     const signer = provider.getSigner()
     const contract = new ethers.Contract(nftmarketaddress, Market.abi, signer)
 
     const price = ethers.utils.parseUnits(nft.price.toString(), 'ether')
-    console.log(nft)
-    const transaction = await contract.createMarketSale(nftaddress, nft.itemId, {value: price})
+    console.log(price)
+    const transaction = await contract.createMarketSale(nftaddress, nft.itemId, {
+      value: price
+    })
 
     await transaction.wait()
 
